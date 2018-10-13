@@ -1,10 +1,14 @@
 <?php
-require('connect.php');
+require('database_connect.php');
 session_start();
+if($_SESSION['user_id']) {
+  header('Location: index.php');
+  exit();
+}
 $message = null;
 if (isset($_POST['login'],$_POST['password'])) {
-  $login = strip_tags($_POST['login']);
-  $password = strip_tags($_POST['password']);
+  $login = $_POST['login'];
+  $password = $_POST['password'];
 
   if ($login !== "" && $password !== "") {
     $isNameExistsQuery = $dbh->prepare('SELECT COUNT(*) FROM users WHERE name=:name');
@@ -17,7 +21,7 @@ if (isset($_POST['login'],$_POST['password'])) {
     } else {
       $insertQuery = $dbh->prepare('INSERT INTO users(name, pass) VALUES(:login,:pass)');
       $insertQuery->bindParam(':login', $login);
-      $insertQuery->bindParam(':pass', $password);
+      $insertQuery->bindParam(':pass', md5($password));
       $insertQuery->execute();
       $selectUserIdQuery = $dbh->prepare('SELECT id from users where name=:login');
       $selectUserIdQuery->bindParam(':login', $login);
@@ -51,10 +55,9 @@ if (isset($_POST['login'],$_POST['password'])) {
       <input type="text" placeholder="Account name" name="login"> </br>
       <input type="password" placeholder="Password" name="password"> </br>
       <br>
-      <button type="submit"> Register <?php echo $_SESSION[count]; ?> </button>
+      <button type="submit"> Register </button>
   </form>
-     <?php echo $message;?>
-
-   </br>
-Have a account? <a class="ref" href="registration_login_connect.php">Log in</a>
+     <?=htmlspecialchars($message)?>
+   <br/>
+Have a account? <a class="ref" href="login.php">Log in</a>
 </html>
