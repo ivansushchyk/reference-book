@@ -5,10 +5,10 @@ if (!$_SESSION['user_id']) {
     exit();
 }
 require('database_connect.php');
-$selectSearchContacts = $dbh->prepare('SELECT name FROM users where id=:user_id');
-$selectSearchContacts->bindParam(':user_id', $_SESSION['user_id']);
-$selectSearchContacts->execute();
-$userName = $selectSearchContacts->fetchColumn();
+$selectUserData = $dbh->prepare('SELECT name FROM users where id=:user_id');
+$selectUserData->bindParam(':user_id', $_SESSION['user_id']);
+$selectUserData->execute();
+$userName = $selectUserData->fetchColumn();
 if (isset($_POST['name'], $_POST['number'])) {
     if (strlen($_POST['name']) < 2 or strlen($_POST['name']) > 15) {
         $message = "Length of name must be bigger than 2 and less than 15";
@@ -31,12 +31,12 @@ if ($_POST['id'] != 0) {
 }
 
 if(isset($_GET['search_name']) && $_GET['search_name'] !== "") {
-    $selectSearchContacts = $dbh->prepare("SELECT * FROM contacts where name LIKE :search_name and user_id = :user_id");
+    $selectUserDate = $dbh->prepare("SELECT * FROM contacts where name LIKE :search_name and user_id = :user_id");
    $search_name = "%{$_GET['search_name']}%";
-    $selectSearchContacts->bindParam(':search_name',$search_name);
-    $selectSearchContacts->bindParam(':user_id', $_SESSION['user_id']);
-    $selectSearchContacts->execute();
-    $userContacts = $selectSearchContacts->fetchAll();
+    $selectUserDate->bindParam(':search_name',$search_name);
+    $selectUserDate->bindParam(':user_id', $_SESSION['user_id']);
+    $selectUserDate->execute();
+    $userContacts = $selectUserDate->fetchAll();
     $result_message= "Result of request {$_GET['search_name']}";
     $link = true;
 }
