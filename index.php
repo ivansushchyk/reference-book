@@ -32,12 +32,12 @@ if ($_POST['id'] != 0) {
 
 if(isset($_GET['search_name']) && $_GET['search_name'] !== "") {
     $selectUserDate = $dbh->prepare("SELECT * FROM contacts where name LIKE :search_name and user_id = :user_id");
-   $search_name = "%{$_GET['search_name']}%";
-    $selectUserDate->bindParam(':search_name',$search_name);
+   $searchName = "%{$_GET['search_name']}%";
+    $selectUserDate->bindParam(':search_name',$searchName);
     $selectUserDate->bindParam(':user_id', $_SESSION['user_id']);
     $selectUserDate->execute();
     $userContacts = $selectUserDate->fetchAll();
-    $result_message= "Result of request {$_GET['search_name']}";
+    $resultMessage= "Result of request {$_GET['search_name']}";
     $link = true;
 }
 else  {
@@ -89,7 +89,7 @@ else  {
 <p> <?= htmlspecialchars($message) ?>
 <p>
 <hr align="center" width="1300" color="Black"/>
-<h1> <?= $result_message?> </h1>
+<h1> <?= $resultMessage?> </h1>
 
 <?php if($userContacts): ?>
     <table>
