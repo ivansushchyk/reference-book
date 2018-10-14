@@ -59,6 +59,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </form>
 <p> <?= $errorMessage ?> </p>
 
-
 <p><a href="index.php"> Back to the main page </a></p>
 </body>

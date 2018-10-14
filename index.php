@@ -5,20 +5,17 @@ if (!$_SESSION['user_id']) {
     exit();
 }
 require('database_connect.php');
-
-$selectAcountName = $dbh->prepare('SELECT name FROM users where id=:user_id');
-$selectAcountName->bindParam(':user_id', $_SESSION['user_id']);
-$selectAcountName->execute();
-$userName = $selectAcountName->fetchColumn();
+$selectSearchContacts = $dbh->prepare('SELECT name FROM users where id=:user_id');
+$selectSearchContacts->bindParam(':user_id', $_SESSION['user_id']);
+$selectSearchContacts->execute();
+$userName = $selectSearchContacts->fetchColumn();
 if (isset($_POST['name'], $_POST['number'])) {
-
     if (strlen($_POST['name']) < 2 or strlen($_POST['name']) > 15) {
         $message = "Length of name must be bigger than 2 and less than 15";
     } elseif (strlen($_POST['number']) !== 10) {
         $message = "Length of number must be 10";
     } elseif (!ctype_digit($_POST['number'])) {
         $message = "Phone number must be recorded only numerically";
-
     } else {
         $inserContactQuery = $dbh->prepare('INSERT INTO contacts VALUES(NULL,:name,:number,:user_id)');
         $inserContactQuery->bindParam(':name', $_POST['name']);
@@ -27,21 +24,29 @@ if (isset($_POST['name'], $_POST['number'])) {
         $inserContactQuery->execute();
     }
 }
-
-
 if ($_POST['id'] != 0) {
-
     $deleteContactQuery = $dbh->prepare('DELETE FROM contacts where id = (:deleteId)');
     $deleteContactQuery->bindParam(':deleteId', $_POST['id']);
     $deleteContactQuery->execute();
 }
-$selectContactsQuery = $dbh->prepare('SELECT * FROM contacts where user_id=:user_id');
-$selectContactsQuery->bindParam(':user_id', $_SESSION['user_id']);
-$selectContactsQuery->execute();
-$userContacts = $selectContactsQuery->fetchAll();
 
+if(isset($_GET['search_name']) && $_GET['search_name'] !== "") {
+    $selectSearchContacts = $dbh->prepare("SELECT * FROM contacts where name LIKE :search_name and user_id = :user_id");
+   $search_name = "%{$_GET['search_name']}%";
+    $selectSearchContacts->bindParam(':search_name',$search_name);
+    $selectSearchContacts->bindParam(':user_id', $_SESSION['user_id']);
+    $selectSearchContacts->execute();
+    $userContacts = $selectSearchContacts->fetchAll();
+    $result_message= "Result of request {$_GET['search_name']}";
+    $link = true;
+}
+else  {
+    $selectContactsQuery = $dbh->prepare('SELECT * FROM contacts where user_id=:user_id');
+    $selectContactsQuery->bindParam(':user_id', $_SESSION['user_id']);
+    $selectContactsQuery->execute();
+    $userContacts = $selectContactsQuery->fetchAll();
+}
 ?>
-
 
 <!DOCTYPE html>
 <html>
@@ -53,22 +58,28 @@ $userContacts = $selectContactsQuery->fetchAll();
             width: 800px;
             margin: auto;
         }
-
         td {
             text-align: center;
         }
-
         P {
             text-align: center
         }
-
         h1 {
             text-align: center
+        }
+        .search
+        {
+            text-align: right;
         }
     </style>
 </head>
 <a class="ref" href="logout.php">Logout</a>
-<body>
+<body><div class="search">
+<form method="get" action= "index.php?search_contact=<?= $_GET['search_name']?>">
+    <input type="text" placeholder="Search contact" name="search_name">
+     <input type="submit" value="Find a contact">
+</form>
+</div>
 <h1>Welcome <?= htmlspecialchars($userName) ?></h1>
 <form action="index.php" method="post">
     <p>Name contact:<input type="text" name="name"/></p>
@@ -78,6 +89,7 @@ $userContacts = $selectContactsQuery->fetchAll();
 <p> <?= htmlspecialchars($message) ?>
 <p>
 <hr align="center" width="1300" color="Black"/>
+<h1> <?= $result_message?> </h1>
 
 <?php if($userContacts): ?>
     <table>
@@ -96,13 +108,16 @@ $userContacts = $selectContactsQuery->fetchAll();
                 </td>
                 <td>
                     <form action="index.php" method="post">
-                        <input type="hidden" id="id" name="id" value="<? htmlspecialchars($userContact['id']) ?>">
+                        <input type="hidden" id="id" name="id" value="<?=htmlspecialchars($userContact['id']) ?>">
                         <button type="submit">Delete contact</button>
                     </form>
                 </td>
             </tr>
-            <?php endforeach; ?>
+        <?php endforeach; ?>
     </table>
+    <?php if($link): ?>
+        <p><a href="index.php"> Back to main <page></page> </a></p>
+    <?php endif; ?>
 <?php else: ?>
     <h2 style="text-align: center">No contacts </h2>
 <?php endif; ?>
