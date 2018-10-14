@@ -30,17 +30,16 @@ if ($_POST['id'] != 0) {
     $deleteContactQuery->execute();
 }
 
-if(isset($_GET['search_name']) && $_GET['search_name'] !== "") {
+if (isset($_GET['search_name']) && $_GET['search_name'] !== "") {
     $selectUserDate = $dbh->prepare("SELECT * FROM contacts where name LIKE :search_name and user_id = :user_id");
-   $searchName = "%{$_GET['search_name']}%";
-    $selectUserDate->bindParam(':search_name',$searchName);
+    $searchName = "%{$_GET['search_name']}%";
+    $selectUserDate->bindParam(':search_name', $searchName);
     $selectUserDate->bindParam(':user_id', $_SESSION['user_id']);
     $selectUserDate->execute();
     $userContacts = $selectUserDate->fetchAll();
-    $resultMessage= "Result of request {$_GET['search_name']}";
+    $resultMessage = "Result of request {$_GET['search_name']}";
     $link = true;
-}
-else  {
+} else {
     $selectContactsQuery = $dbh->prepare('SELECT * FROM contacts where user_id=:user_id');
     $selectContactsQuery->bindParam(':user_id', $_SESSION['user_id']);
     $selectContactsQuery->execute();
@@ -58,27 +57,31 @@ else  {
             width: 800px;
             margin: auto;
         }
+
         td {
             text-align: center;
         }
+
         P {
             text-align: center
         }
+
         h1 {
             text-align: center
         }
-        .search
-        {
+
+        .search {
             text-align: right;
         }
     </style>
 </head>
 <a class="ref" href="logout.php">Logout</a>
-<body><div class="search">
-<form method="get" action= "index.php?search_contact=<?= $_GET['search_name']?>">
-    <input type="text" placeholder="Search contact" name="search_name">
-     <input type="submit" value="Find a contact">
-</form>
+<body>
+<div class="search">
+    <form method="get" action="index.php?search_contact=<?= $_GET['search_name'] ?>">
+        <input type="text" placeholder="Search contact" name="search_name">
+        <input type="submit" value="Find a contact">
+    </form>
 </div>
 <h1>Welcome <?= htmlspecialchars($userName) ?></h1>
 <form action="index.php" method="post">
@@ -89,9 +92,9 @@ else  {
 <p> <?= htmlspecialchars($message) ?>
 <p>
 <hr align="center" width="1300" color="Black"/>
-<h1> <?= $resultMessage?> </h1>
+<h1> <?= $resultMessage ?> </h1>
 
-<?php if($userContacts): ?>
+<?php if ($userContacts): ?>
     <table>
         <tr>
             <th>Name</th>
@@ -108,15 +111,17 @@ else  {
                 </td>
                 <td>
                     <form action="index.php" method="post">
-                        <input type="hidden" id="id" name="id" value="<?=htmlspecialchars($userContact['id']) ?>">
+                        <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($userContact['id']) ?>">
                         <button type="submit">Delete contact</button>
                     </form>
                 </td>
             </tr>
         <?php endforeach; ?>
     </table>
-    <?php if($link): ?>
-        <p><a href="index.php"> Back to main <page></page> </a></p>
+    <?php if ($link): ?>
+        <p><a href="index.php"> Back to main
+                <page></page>
+            </a></p>
     <?php endif; ?>
 <?php else: ?>
     <h2 style="text-align: center">No contacts </h2>
