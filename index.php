@@ -1,5 +1,6 @@
 <?php
 session_start();
+require('functions.php');
 if (!$_SESSION['user_id']) {
     header('Location:  login.php');
     exit();
@@ -10,18 +11,13 @@ $selectUserData->bindParam(':user_id', $_SESSION['user_id']);
 $selectUserData->execute();
 $userName = $selectUserData->fetchColumn();
 if (isset($_POST['name'], $_POST['number'])) {
-    if (strlen($_POST['name']) < 2 or strlen($_POST['name']) > 15) {
-        $message = "Length of name must be bigger than 2 and less than 15";
-    } elseif (strlen($_POST['number']) !== 10) {
-        $message = "Length of number must be 10";
-    } elseif (!ctype_digit($_POST['number'])) {
-        $message = "Phone number must be recorded only numerically";
-    } else {
-        $inserContactQuery = $dbh->prepare('INSERT INTO contacts VALUES(NULL,:name,:number,:user_id)');
-        $inserContactQuery->bindParam(':name', $_POST['name']);
-        $inserContactQuery->bindParam(':number', $_POST['number']);
-        $inserContactQuery->bindParam(':user_id', $_SESSION['user_id']);
-        $inserContactQuery->execute();
+    $insertErrorMessage = validateContactData($_POST['name'], $_POST['number']);
+    if (!$insertErrorMessage) {
+        $insertContactQuery = $dbh->prepare('INSERT INTO contacts VALUES(NULL,:name,:number,:user_id)');
+        $insertContactQuery->bindParam(':name', $_POST['name']);
+        $insertContactQuery->bindParam(':number', $_POST['number']);
+        $insertContactQuery->bindParam(':user_id', $_SESSION['user_id']);
+        $insertContactQuery->execute();
     }
 }
 if ($_POST['id'] != 0) {
@@ -52,47 +48,30 @@ if (isset($_GET['search_name']) && $_GET['search_name'] !== "") {
 <head>
     <meta charset="utf-8">
     <title>Reference book</title>
-    <style type="text/css">
-        table {
-            width: 800px;
-            margin: auto;
-        }
-
-        td {
-            text-align: center;
-        }
-
-        P {
-            text-align: center
-        }
-
-        h1 {
-            text-align: center
-        }
-
-        .search {
-            text-align: right;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-<a class="ref" href="logout.php">Logout</a>
+<a class="button" href="logout.php">Logout</a>
 <body>
 <div class="search">
     <form method="get" action="index.php?search_contact=<?= $_GET['search_name'] ?>">
         <input type="text" placeholder="Search contact" name="search_name">
-        <input type="submit" value="Find a contact">
+        <input type="submit" value="Find a contact" class="button">
     </form>
 </div>
+<div class="insert">
 <h1>Welcome <?= htmlspecialchars($userName) ?></h1>
 <form action="index.php" method="post">
     <p>Name contact:<input type="text" name="name"/></p>
     <p>Number telephone:<input type="text" name="number"/></p>
-    <p><input type="submit" value='Add to contacts'></p>
+    <p><input type="submit" value='Add to contacts' class="button"></p>
 </form>
-<p> <?= htmlspecialchars($message) ?>
-<p>
-<hr align="center" width="1300" color="Black"/>
-<h1> <?= $resultMessage ?> </h1>
+ <p><?= htmlspecialchars($insertErrorMessage) ?> </p>
+    </div>
+
+
+
+    <hr align="center" width="1300" color="Black"/>
+<h2> <?= $resultMessage ?> </h2>
 
 <?php if ($userContacts): ?>
     <table>
@@ -107,12 +86,12 @@ if (isset($_GET['search_name']) && $_GET['search_name'] !== "") {
                 <td>  <?= htmlspecialchars($userContact['name']) ?> </td>
                 <td>   <?= htmlspecialchars($userContact['number']) ?> </td>
                 <td>
-                    <a href="edit.php?contact_id=<?= htmlspecialchars($userContact['id']) ?>"> Edit </a>
+                    <a href="edit.php?contact_id=<?= htmlspecialchars($userContact['id']) ?>" class="button"> Edit </a>
                 </td>
                 <td>
                     <form action="index.php" method="post">
                         <input type="hidden" id="id" name="id" value="<?= htmlspecialchars($userContact['id']) ?>">
-                        <button type="submit">Delete contact</button>
+                        <button type="submit" class="button">Delete contact</button>
                     </form>
                 </td>
             </tr>

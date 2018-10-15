@@ -36,15 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="utf-8">
     <title>Reference book</title>
-    <style type="text/css">
-        P {
-            text-align: center
-        }
-
-        h1 {
-            text-align: center
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
@@ -52,12 +44,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <h1>Editing contact</h1>
 <hr align="center" width="1300" color="Black"/>
 <form method="post">
-    <p><input type="text" value="<?= htmlspecialchars($editedContact['name'])?>" name="name">
-        <input type="text" value="<?= htmlspecialchars($editedContact['number'])?>" name="number">
+    <p><input type="text" value="<?= htmlspecialchars($editedContact['name']) ?>" name="name">
+        <input type="text" value="<?= htmlspecialchars($editedContact['number']) ?>" name="number">
         <input type="submit" value="Save">
     </p>
 </form>
 <p> <?= $errorMessage ?> </p>
 
-<p><a href="index.php"> Back to the main page </a></p>
+<p><a href="index.php" class="button"> Back to the main page </a></p>
 </body>
